@@ -1196,7 +1196,7 @@ BL <- read.table("Stats1.13.Lab.10.txt", header = T)
 
 # If you want to view the data
 # View(BL)
-edit(BL)
+# edit(BL)
 
 # Summary statistics
 describe(BL) 
@@ -1205,6 +1205,7 @@ describe(BL)
 lrfit <- glm(BL$verdict ~ BL$danger + BL$rehab + BL$punish + BL$gendet + BL$specdet + BL$incap, family = binomial)
 summary(lrfit)
 
+# ??? CIs using log-likelihood
 confint(lrfit) # CIs using profiled log-likelihood (default for logistic models)
 confint.default(lrfit) # CIs using standard errors
 
@@ -1213,6 +1214,7 @@ with(lrfit, null.deviance - deviance) #difference in deviance for the two models
 with(lrfit, df.null - df.residual) #df for the difference between the two models
 with(lrfit, pchisq(null.deviance-deviance, df.null-df.residual, lower.tail = FALSE)) #p-value
 
+# ??? what is vcov of a model vcov(lrfit) below
 # Wald tests
 library(aod)
 wald.test(b = coef(lrfit), Sigma = vcov(lrfit), Terms = 2) #danger
