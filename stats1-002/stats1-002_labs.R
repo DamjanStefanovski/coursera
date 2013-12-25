@@ -1,3 +1,8 @@
+###
+### Overall issues:
+### glm: why in case of poisson distribution the link function is log??
+### non-parametric tests
+### 
 # ./Stats1.13.Lab.01.R
 ### Stats1.13.Lab.01.R ###
 
@@ -216,14 +221,14 @@ sm.density.compare(impact$total_symptom_retest, #XXXX
 
 ##  Positively skewed: as in the example of the temperature histogram.
 ##  That distribution can be positively skewed by just a copule of
-##  sick kids with high fever.  Skew where there's few
+##  sick kids with high fever.  Skew is where there's few
 
 ##  bi-modal distribution (kids with antibiotics + kids with fever
 ##  intermixed, ie two normal distributions added) mode in summary
 ##  statistic is the value that occurs most often (peak in the
 ##  histogram), bi-modal has two peaks in the histogram
 
-##  playkurtic (uniform), leptokurtic (single peak)
+##  platykurtic (uniform), leptokurtic (single peak)
 
 ##  Statistics standard scale is known as Z-scale, standard score is
 ##  Z-score.  duality between z-score and percentile ???
@@ -442,7 +447,7 @@ cor.test(PE$endurance, PE$activeyears)
 cor.test(PE$endurance, PE$age)
 
 # Histograms
-layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE))
+layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE)) #XXX layout
 hist(PE$age)
 hist(PE$activeyears)
 hist(PE$endurance)
@@ -667,13 +672,14 @@ model1.B
 # Standard error = Square root [ (Sums of Squares.Residual / (N - 2) ) / (Sums of Squares.X) ]
 # se.B = sqrt[ (SS.resid / (N-2) ) / SS.X )]
 # See transcript marked Thu Dec  5 18:13:18 PST 2013
+# XXX2
 table3 <- anova(model1)
 table3
 SS.resid <- table3[2,2]
 SS.resid
 df <- table3[2,1]
 df
-SS.X <- table3[1,2] + table3[2,2]
+SS.X <- table3[1,2] + table3[2,2]       # XXX2 why???
 SS.X
 se.B <- sqrt( (SS.resid / df) / SS.X) 
 se.B
@@ -712,7 +718,11 @@ ggplot(PE, aes(x = predicted, y = endurance)) + geom_smooth(method = "lm") +
   geom_point() 
 
   
-# Conduct a model comparison NHST to compare the fit of model2 to the fit of model3
+# Conduct a model comparison NHST to compare the fit of model2 to the fit of model3 XXX2 anova not aov
+
+# XXX2 the p-value associated with the F value is the same as the
+# p-value for age when age was added in the model (model3)
+
 anova(model2, model3)
 
 
@@ -764,6 +774,13 @@ confint(model3.20)
 # Conduct a model comparison NHST to compare the fit of model2.20 and model3.20
 anova(model2.20, model3.20)
 
+### XXX2 what if intercept is not significant, what does it mean?
+### What if the model is is usable (explains substantial variance) but
+### intercept is not significant.
+###
+### XXX2 connection between sample size to use for regression and statistical power?
+### statistical power is probability of detecting invalid null hypothesis
+### 
 
 # =*=*=*=*
 # ./Stats1.13.Lab.06.R
@@ -797,7 +814,7 @@ FS <- read.table("Stats1.13.Lab.06.txt", header = T)
 
 # If you want to view the data
 # View(FS)
-edit(FS)
+# edit(FS)
 
 # Summary statistics
 describe(FS) 
@@ -840,7 +857,11 @@ anova(model3, model4)
 
 # Let's examine the salary difference between History and Sociology
 # To quickly view the means, use the tapply function
-tapply(FS$salary, FS$dept, mean)
+tapply(FS$salary, FS$dept, mean) # XXX2
+## > tapply(FS$salary, FS$dept, mean)
+##        H        P        S 
+## 137421.3 129067.4 135015.6 
+
 
 # The actual means are not that different, so why are the means predicted by the model so different?
 # There must be differences across departments in years and/or pubs
@@ -899,7 +920,7 @@ MOD <- read.table("Stats1.13.Lab.07.txt", header = T)
 
 # If you want to view the data
 # View(MOD)
-edit(MOD)
+# edit(MOD)
 
 # Summary statistics
 describeBy(MOD, MOD$condition) 
@@ -913,6 +934,11 @@ confint(model0)
 model0a <- aov(MOD$IQ ~ MOD$condition)
 summary(model0a)
 TukeyHSD(model0a)
+
+# XXX2
+# F statistic is SS_across_groups/SS_within_groups.  Both numerator and denominator have Chi-Sq distribution with their own degrees of freedom.
+# F statistic is a ratio of two Chi-Square distributions parameterized by the two degrees of freedom (numerator, denominator)
+#
 
 # Moderation analysis (uncentered): model1 tests for "first-order effects"; model2 tests for moderation
 model1 <- lm(MOD$IQ ~ MOD$WM + MOD$D1 + MOD$D2)
@@ -928,7 +954,7 @@ MOD$WM.D2 <- (MOD$WM * MOD$D2)
 model2 <- lm(MOD$IQ ~ MOD$WM + MOD$D1 + MOD$D2 + MOD$WM.D1 + MOD$WM.D2)
 summary(model2)
 
-anova(model1, model2)
+ anova(model1, model2)
 
 # Scatter plot by group and all in one
 WM.control <- MOD$WM[1:50]
@@ -959,7 +985,7 @@ MED <- read.table("Stats1.13.Lab.07b.txt", header = T)
 
 # If you want to view the data
 # View(MED)
-edit(MED)
+# edit(MED)
 
 # Summary statistics
 describeBy(MED, MED$condition) 
@@ -1016,7 +1042,7 @@ wm = read.table("Stats1.13.Lab.08.txt", header = T)
 
 # If you want to view the data
 # View(wm)
-edit(wm)
+# edit(wm)
 
 # Summary statistics by all groups (control, 8 sessions, 12 sessions, 17 sessions, 19 sessions)
 describeBy(wm, wm$cond)
@@ -1031,7 +1057,68 @@ wm.c.out
 wm.t.out = describe(wm.t)
 wm.t.out
 
-# Dependent t-tests
+# XXX Dependent t-tests
+
+# t-value = (Mean of Observed difference - Mean of Expected difference)/SE
+#         = (Mean of Observed difference)/SE of Observed difference)
+#         = (M - O) /SE = M/SE
+# Cohens D = M/SD Cohen's D of 1 means mean changed by a whole std deviation
+# 
+# SE is biased by N (goes down with higher N), SD is not biased by N
+# XXX
+# XXX
+# XXX
+# XXX
+# Difference between standard error and standard deviation
+
+# When dealing with numerical data sets, many people get confused between the standard deviation of
+# the sample and the standard error of the sample mean. We want to stress the difference between
+# these.
+
+# Standard deviation (SD)
+
+# This describes the spread of values in the sample. The sample standard deviation, s, is a random
+# quantity -- it varies from sample to sample -- but it stays the same on average when the sample
+# size increases.
+
+# Standard error of the mean (SE)
+
+# This is the standard deviation of the sample mean, xBar, and describes its accuracy as an estimate
+# of the population mean, mu. When the sample size increases, the estimator is based on more
+# information and becomes more accurate, so its standard error decreases.
+
+# Not only is this true for sample means, but more generally...
+
+# [[[ The standard error of all common estimators decreases as the sample size, n, increases. ]]]
+
+# Common mistakes in interpretation: Students often use the standard error when they should use the
+# standard deviation, and vice versa.
+
+# Standard error does not describe the variability of individual values
+# 	A new value has about 95% probability of being within 2 standard deviations of sample mean.
+# Standard deviation does not describe the accuracy of the sample mean
+# 	The sample mean has about 95% probability of being within 2 standard errors of the population mean.
+#
+# Theory (again)
+
+# To illustrate the distinction between the standard deviation and standard error, the diagram below
+# shows a normal population with mean mu = 1000 and standard deviation sigma = 200.
+
+# Use the slider to adjust the sample size. Note that the standard error decreases when the sample
+# size gets bigger even though the population standard deviation stays the same.
+
+# From data (simulation)
+
+# The next diagram takes random samples of values from the above population.
+
+# Click Take Sample a few times and observe that the sample standard deviation varies from sample to
+# sample but usually has a value close to the population standard deviation, sigma = 200.
+
+# Observe also that the standard error (estimated using the sample standard deviation, s) is much
+# lower than the standard deviation.
+
+# Use the pop-up menu to increase the sample size. Observe that the sample standard deviation
+# remains around sigma = 200 but the standard error decreases.
 
 # First, compare pre and post scores in the control group
 t.test(wm.c$post, wm.c$pre, paired = T)
@@ -1066,6 +1153,8 @@ t.test(wm$gain ~ wm$train, var.equal = T)
 # Cohen's d for independent t-tests
 # d = (M1 - M2) / Pooled Standard Deviation
 
+# XXX2 pooled sd is weighted avg of component SDs, weighted by df
+#
 pooled.sd = (79/118 * wm.t.out[4,4]) + (39/118 * wm.c.out[4,4])
 
 d.ct = (wm.t.out[4,3] - wm.c.out[4,3]) / pooled.sd
@@ -1090,11 +1179,13 @@ summary(aov.model)
 aov.table = summary(aov.model)
 
 # Effect size for ANOVA
+# XXX (SSW/(SSW+SSB))
 ss = aov.table[[1]]$"Sum Sq"
 eta.sq = ss[1] / (ss[1] + ss[2])
 eta.sq
 #or
 etaSquared(aov.model, anova=T)
+# XXX F ratio = MSSmodel/MSSresidual  Both MSSmodel and MSSresidual have Chi Squared distributions with corresponding degrees of freedom.
 
 # Conduct post-hoc tests to evaluate all pairwise comparisons
 TukeyHSD(aov.model)
@@ -1125,7 +1216,7 @@ library(lsr)
 AB <- read.table("Stats1.13.Lab.09.txt", header = T)
 
 # Let's look at the data 
-edit(AB)
+# edit(AB)
 
 # Test the homogeneity of variance assumption
 leveneTest(AB$errors ~ AB$driving * AB$conversation)
@@ -1205,7 +1296,7 @@ describe(BL)
 lrfit <- glm(BL$verdict ~ BL$danger + BL$rehab + BL$punish + BL$gendet + BL$specdet + BL$incap, family = binomial)
 summary(lrfit)
 
-# ??? CIs using log-likelihood
+# XXX2 CIs using log-likelihood
 confint(lrfit) # CIs using profiled log-likelihood (default for logistic models)
 confint.default(lrfit) # CIs using standard errors
 
@@ -1251,3 +1342,840 @@ plot(BL$incap, predict(lrfit), bty="n")
 abline(lm(predict(lrfit) ~ BL$incap), col="blue", lwd=5)
 par(mfrow=c(1,1))
 title("Non-significant predictors")
+
+# =*=*=*=*
+# Statistics One, 2013, Lab 11
+
+# Lab goals
+#   Conduct group comparisons with both parametric and non-parametric tests
+#     Dependent t-tests and Wilcoxan
+#     Independent t-tests and Mann Whitney
+#     Analysis of Variance (ANOVA) and Kruskul Wallis
+
+# Example
+#  Working memory training experiment (N = 120)
+#  The dependent variable (DV) is number of items answered correctly on an intelligence test
+#  There are three independent variables:
+#    Time (2 levels): pre and post training
+#    Training (2 levels): training (1) and control (0) (n.training = 80, n.control = 40)
+#    Training sessions (4 levels): 8, 12, 17, 19 (for each, n = 20)
+
+# Check your working directory
+# getwd()
+# If necessary, set your working directory
+# setwd("Users/aconway/Dropbox/STATS1-V2.0/Labs")
+
+
+# If necessary, install packages
+# install.packages("psych")
+# install.packages("car")
+
+# Load packages
+library(psych)
+library(car)
+library(lsr)
+library(ggplot2)
+library(reshape)
+
+# Read data into a dataframe called wm
+wm = read.table("Stats1.13.Lab.08.txt", header = T)
+
+# If you want to view the data
+# View(wm)
+edit(wm)
+
+# Summary statistics by all groups (control, 8 sessions, 12 sessions, 17 sessions, 19 sessions)
+describeBy(wm, wm$cond)
+
+# Create two subsets of data: One for the control group and another for the training groups
+wm.c = subset(wm, wm$train == "0")
+wm.t = subset(wm, wm$train == "1")
+
+# Save summary statistics in tables to illustrate calculation of effect size
+wm.c.out = describe(wm.c)
+wm.c.out
+wm.t.out = describe(wm.t)
+wm.t.out
+
+# Dependent t-tests
+
+# First, compare pre and post scores in the control group
+t.test(wm.c$pre, wm.c$post, paired = T)
+
+# Wilcoxon
+wilcox.test(wm.c$pre, wm.c$post, paired = T)
+
+# Next, compare pre and post scores in the training groups
+t.test(wm.t$pre, wm.t$post, paired = T)
+
+# Wilcoxon
+wilcox.test(wm.t$pre, wm.t$post, paired = T)
+
+# Cohen's d for dependent t-tests
+# d = Mean of difference scores / Standard deviation of difference scores
+
+d.c = (wm.c.out[4,3]) / (wm.c.out[4,4])
+d.c
+#or
+cohensD(wm.c$post, wm.c$pre, method="paired")
+
+d.t = (wm.t.out[4,3]) / (wm.t.out[4,4])
+d.t
+#or
+cohensD(wm.t$post, wm.t$pre, method="paired")
+
+# Boxplot
+long.wm <- melt(wm, id=c("cond", "train", "gain"))
+
+ggplot(long.wm, aes(x=cond, y=value, color=variable)) + 
+  geom_boxplot() +
+  guides(fill=FALSE) 
+
+# Independent t-test
+# XXX
+# t value = (Observed - Expected)/SE = (M1 - M2)/SE, SE = (SE1+SE2)/2
+# Compare the gain scores in the control and training groups 
+t.test(wm$gain ~ wm$train, var.equal = T)
+
+# Mann-Whitney
+wilcox.test(wm$gain ~ wm$train, paired = F)
+
+# Cohen's d for independent t-tests
+# d = (M1 - M2) / Pooled Standard Deviation
+pooled.sd = (79/118 * wm.t.out[4,4]) + (39/118 * wm.c.out[4,4])
+
+d.ct = (wm.t.out[4,3] - wm.c.out[4,3]) / pooled.sd
+d.ct
+# or
+cohensD(wm$gain ~ wm$train, method="pooled")
+
+# Boxplot
+ggplot(wm, aes(x=cond, y=gain, fill=cond)) + 
+  geom_boxplot() +
+  guides(fill=FALSE)
+
+# To compare the gain scores across all groups, use ANOVA
+# First, check the homogeneity of variance assumption
+leveneTest(wm.t$gain, wm.t$cond, center="mean")
+leveneTest(wm.t$gain, wm.t$cond)
+
+aov.model = aov(wm.t$gain ~ wm.t$cond)
+summary(aov.model)
+
+# Kruskal Wallis
+kruskal.test(wm.t$gain ~ wm.t$cond)
+
+# Save results in a table to illustrate calculation of effect size
+aov.table = summary(aov.model)
+
+# Effect size for ANOVA
+ss = aov.table[[1]]$"Sum Sq"
+eta.sq = ss[1] / (ss[1] + ss[2])
+eta.sq
+#or
+etaSquared(aov.model, anova=T)
+
+# Conduct post-hoc tests to evaluate all pairwise comparisons
+TukeyHSD(aov.model)
+
+### XXX XXXXXXXXXXXXXXXXXXXXXXXXXXX misc R  XXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+## Look at their internal representations and it will become clearer.  v,
+## a vector, has length 6.  m, a matrix, is actually the same as the
+## vector v except is has dimensions too. Since m is just a vector with
+## dimensions, m has length 6 as well.  L is a list and has length 2
+## because its a vector each of whose components is itself a vector.  DF
+## is a data frame and is the same as L except its 2 components must each
+## have the same length and it must have row and column names.  If you
+## don't assign the row and column names they are automatically generated
+## as we can see.  Note that row.names = c(NA, -3L) is a short form for
+## row names of 1:3 and .Names internally refers to column names.
+
+## Arrays are matrices with more than 2 dimensions. Put the other way: 
+## matrices are arrays with only 2 dimensions.
+
+## I would also add these:
+## - the components of a vector have to be of the same mode (character, 
+## numeric, integer...)
+## - which implies that the components of matrices and arrays have to be 
+## also of the same mode (which might lead to some coercion of your data if 
+## you don't pay attention to it).
+
+v <- 1:6 # vector
+dput(v)
+# 1:6
+
+m <- v; dim(m) <- 2:3 # m is a matrix since we added dimensions
+dput(m)
+# structure(1:6, .Dim = 2:3)
+
+L <- list(1:3, 4:6)
+dput(L)
+# list(1:3, 4:6)
+
+DF <- data.frame(1:3, 4:6)
+dput(DF)
+#structure(list(X1.3 = 1:3, X4.6 = 4:6), .Names = c("X1.3", "X4.6"), row.names = c(NA, -3L), class = "data.frame")
+
+
+## Factor are character data, but coded as numeric mode. Each number is 
+## associated with a given string, the so-called levels. Here is an example:
+## my.fac <- factor(c("something", "other", "more", "something", "other", 
+## "more"))
+
+my.fac <- factor(c("something", "other", "more", "something", "other", "more"))
+my.fac
+# [1] something other     more      something other     more
+# Levels: more other something
+mode(my.fac)
+# [1] "numeric"    ## coded as numeric even though you gave character strings!
+class(my.fac)
+# [1] "factor"
+levels(my.fac)
+# [1] "more"      "other"     "something"
+as.numeric(my.fac)
+# [1] 3 2 1 3 2 1                  ## internal representation
+as.character(my.fac)
+# [1] "something" "other"     "more"      "something" "other"     "more"    ## what you think it is!
+
+## > Arrays are matrices with more than 2 dimensions. Put the other way: matrices
+## > are arrays with only 2 dimensions.
+
+## Arrays can have any number of dimensions including 1, 2, 3, etc.
+
+## a 2d array is a matrix. Its composed from a vector plus two dimensions.
+m <- array(1:4, c(2, 2))
+dput(m)
+# structure(1:4, .Dim = c(2L, 2L))
+class(m)
+# [1] "matrix"
+is.array(m)
+# [1] TRUE
+dim(m)
+# [1] 2 2
+mode(m)
+# [1] "numeric"
+
+## a 1d array is a vector plus a single dimension
+a1 <- array(1:4, 4)
+dput(a1)
+# structure(1:4, .Dim = 4L)
+dim(a1)
+# [1] 4
+class(a1)
+# [1] "array"
+is.array(a1)
+# [1] TRUE
+mode(a1)
+# [1] "numeric"
+
+## if we remove dimension part its no longer an array but just a vector
+## and with the dimension present its an array but not a vector
+nota <- a1
+dim(nota) <- NULL
+dput(nota)
+# 1:4
+is.array(nota)
+# [1] FALSE
+is.vector(nota)
+# [1] TRUE
+
+## >
+## > I would also add these:
+## > - the components of a vector have to be of the same mode (character,
+## > numeric, integer...)
+## 
+## however, a list with no attributes is a vector too so this is a vector:
+
+vl <- list(sin, 3, "a")
+is.vector(vl)
+# [1] TRUE
+
+## A vector may not have attributes so arrays and factors are not vectors
+## although they are composed from vectors.
+
+## > - which implies that the components of matrices and arrays have to be also
+## > of the same mode (which might lead to some coercion of your data if you
+## > don't pay attention to it).
+## >
+## > Factor are character data, but coded as numeric mode. Each number is
+## > associated with a given string, the so-called levels. Here is an example:
+## > my.fac <- factor(c("something", "other", "more", "something", "other",
+## > "more"))
+
+## A factor is composed of an integer vector plus a levels attribute
+## (called .Label internally) as in this code:
+
+fac <- factor(c("b", "a", "b"))
+dput(fac)
+# structure(c(2L, 1L, 2L), .Label = c("a", "b"), class = "factor")
+levels(fac)
+# [1] "a" "b"
+
+## The basic structure for data is a vector and more complex data objects are
+## build from that.  An array is a more complex object than a vector.  A 1d
+## array is not the same as a vector.
+
+## A list is really a vector of pointers so the components are of the
+## same type.  Its just that you can't access the pointer nature of the
+## components.  For example, you can have a matrix based on a list.  We
+## have added a dimension to the list so it becomes an array even though
+## its based on a list:
+
+m <- matrix(list(sin, "a", 1, list(1:3)), 2, 2)
+dput(m)
+# structure(list(.Primitive("sin"), "a", 1, list(1:3)), .Dim = c(2L,2L))
+m
+#      [,1] [,2]
+# [1,] ?    1
+# [2,] "a"  List,1
+# NOTE: every element is a different (storage.)mode above, violating the same mode edict.  This is definitely one of the dusty corners of R
+is.array(m)
+# [1] TRUE
+class(m)
+# [1] "matrix"
+
+## >
+## > Also you wrote that a vector may not have attributes. I might be wrong (and
+## > certainly am), but aren't names attributes? So with is a named list still a
+## > vector:
+## > my.list <- list(num=1:3, let=LETTERS[1:2])
+## > names(my.list)
+## > [1] "num" "let"
+## > is.vector(my.list)
+## > [1] TRUE
+
+## names don't count. Neither does class.
+
+## -----
+
+bar = seq(1,200000, by=2)
+bar.squared = rep(NA, 200000)
+
+for (i in 1:length(bar) ) {
+    bar.squared[i] = bar[i]^2
+}
+
+#get rid of excess NAs
+bar.squared = bar.squared[!is.na(bar.squared)]
+summary(bar.squared)
+
+## check for a single value
+
+v <- c('a','b','c','e')
+
+'b' %in% v
+## returns TRUE
+
+match('b',v)
+## returns the first location of 'b', in this case: 2
+
+## Negative Index
+## If the index is negative, it would strip the member whose position
+## has the same absolute value as the negative index.
+s = c("aa", "bb", "cc", "dd", "ee") 
+s[3] 
+# [1] "cc"
+s[-3] 
+# [1] "aa" "bb" "dd" "ee"
+
+all.equal(pi, 355/113)
+# not precise enough (default tol) > relative error
+
+d45 <- pi*(1/4 + 1:10)
+#  stopifnot(...)
+#  ...: any number of ('logical') R expressions, which should
+#      evaluate to 'TRUE'.  Returns TRUE or FALSE
+# in all equal differences smaller than tolerance (.Machine$double.eps ^ 0.5) are not considered
+# 
+stopifnot(
+all.equal(tan(d45), rep(1, 10)))          # TRUE, but
+all      (tan(d45) == rep(1, 10))         # FALSE, since not exactly
+all.equal(tan(d45), rep(1, 10), tol = 0)  # to see difference
+
+# ifelse(test, true_value, false_value)
+# Example
+x <- 1:10 # Creates sample data
+ifelse(x<5 | x>8, x, 0)
+#  [1]  1  2  3  4  0  0  0  0  9 10
+
+# Comparison Operators equal: == not equal: != greater/less than: > <
+# greater/less than or equal: >= <=
+# Logical Operators and: & or: | not: !
+
+if(1==0) {
+    print(1) 
+} else { 
+    print(2) 
+}
+x <- 1:4
+as.matrix(x)
+#      [,1]
+# [1,]    1
+# [2,]    2
+# [3,]    3
+# [4,]    4
+
+# loops
+z <- 0
+while(z < 5) {                          # LOOP1
+    z <- z + 2
+    print(z)
+}
+# [1] 2
+# [1] 4
+# [1] 6
+
+# other loops
+
+z <- 0
+repeat {                                # LOOP2
+    z <- z + 1
+    print(z)
+    if(z > 100) break() 
+}
+
+mydf <- iris
+myve <- NULL # Creates empty storage container
+> nrow(mydf)
+# [1] 150
+> ncol(mydf)
+# [1] 5
+seq(along=mydf[1,])
+# [1] 1 2 3 4 5
+seq(along=mydf[1,])
+# [1] 1 2 3 4 5...150
+
+for(i in seq(along=mydf[,1])) {                     # LOOP3
+    myve <- c(myve, mean(as.numeric(mydf[i, 1:3]))) # Note: inject approach is much faster than
+                                                    # append with 'c'. See below for details.
+}
+myve
+# vector of the avg of the first 3 values for every row
+
+# The apply
+# ___For Two-Dimensional Data Sets___: apply
+# apply(X, MARGIN, FUN, ...)
+apply(iris[,1:3], 1, mean)
+# [1] 3.333333 3.100000 3.066667 3.066667 3.333333 3.666667 3.133333 3.300000
+
+## With custom function
+x <- 1:10
+test <- function(x) { # Defines some custom function
+    if(x < 5) { 
+        x-1 
+    } else { 
+        x / x 
+    } 
+} 
+apply(as.matrix(x), 1, test) # Returns same result as previous for loop*
+# [1] 0 1 2 3 1 1 1 1 1 1
+
+apply(as.matrix(x), 1, function(x) { if (x<5) { x-1 } else { x/x } })
+# [1] 0 1 2 3 1 1 1 1 1 1
+
+apply - When you want to apply a function to the rows or columns of a matrix (and higher-dimensional analogues).
+
+# Two dimensional matrix
+M <- matrix(seq(1,16), 4, 4)
+
+# apply min to rows
+apply(M, 1, min)
+[1] 1 2 3 4
+
+# apply min to columns
+apply(M, 2, max)
+[1]  4  8 12 16
+
+# 3 dimensional array, note you can't use matrix below, matrix is only 2-d array, this is 3-d
+M <- array( seq(32), dim = c(4,4,2))
+
+# Apply sum across each M[*, , ] - i.e Sum across 2nd and 3rd dimension
+apply(M, 1, sum)
+# Result is one-dimensional
+[1] 120 128 136 144
+
+# Apply sum across each M[*, *, ] - i.e Sum across 3rd dimension
+apply(M, c(1,2), sum)       # Result is two-dimensional
+#      [,1] [,2] [,3] [,4]
+# [1,]   18   26   34   42
+# [2,]   20   28   36   44
+# [3,]   22   30   38   46
+# [4,]   24   32   40   48
+
+## If you want row/column means or sums for a 2D matrix, be sure to investigate the highly optimized, lightning-quick colMeans, rowMeans, colSums, rowSums.
+
+## -----
+## matrix with 20 rows
+m1=matrix(runif(100,1,2), 20)
+a[1:5,]
+colMeans(m1)
+## [1] 1.609214 1.556576 1.551698 1.486563 1.550683
+
+#     sweep(x, MARGIN, STATS, FUN = "-", check.margin = TRUE, ...)
+# STATS: the summary statistic which is to be swept out.
+
+#   FUN: the function to be used to carry out the sweep. 'FUN' is found by a
+#   call to 'match.fun'.  As in the default, binary operators can be supplied if
+#   quoted or backquoted.
+
+## subtract column means from each column centering each column around mean
+a1 <- sweep(a, 2, colMeans(a), "-")
+a1[1:5,  ]
+
+#dividing each column by sum
+a2 <- sweep(a, 2, colSums(a), "/")
+a2[1:5,  ]
+
+## -----
+
+# For Vectors and Lists: lapply and sapply
+# 
+# Both apply a function to vector or list objects. The function lapply returns a list, while sapply
+# attempts to return the simplest data object, such as vector or matrix instead of list.
+# Syntax
+# lapply(X, FUN)
+# sapply(X, FUN)
+
+## Creates a sample list 
+mylist <- as.list(iris[1:3,1:3])
+mylist
+## $Sepal.Length
+## [1] 5.1 4.9 4.7
+
+## $Sepal.Width
+## [1] 3.5 3.0 3.2
+
+## $Petal.Length
+## [1] 1.4 1.4 1.3
+
+## Compute sum of each list component and return result as list
+lapply(mylist, sum)
+## $Sepal.Length
+## [1] 14.7
+
+## $Sepal.Width
+## [1] 9.7
+
+## $Petal.Length
+## [1] 4.1
+
+## Compute sum of each list component and return result as vector
+sapply(mylist, sum)
+## Sepal.Length  Sepal.Width Petal.Length 
+##         14.7          9.7          4.1
+
+x1 <- sapply(mylist, sum)
+mode(x1)
+## [1] "numeric"
+class(x1)
+## [1] "numeric"
+names(x1) <- c()
+x1
+## [1] 14.7  9.7  4.1
+
+## sapply - When you want to apply a function to each element of a list in turn,
+## but you want a vector back, rather than a list.
+
+## If you find yourself typing unlist(lapply(...)), stop and consider sapply.
+
+x <- list(a = 1, b = 1:3, c = 10:100)
+# Compare with above; a named vector, not a list 
+sapply(x, FUN = length)  
+# a  b  c   
+# 1  3 91
+
+sapply(x, FUN = sum)   
+# a    b    c    
+# 1    6 5005 
+
+## In more advanced uses of sapply it will attempt to coerce the result to a
+## multi-dimensional array, if appropriate. For example, if our function returns
+## vectors of the same length, sapply will use them as columns of a matrix:
+set.seed(0)
+sapply(1:5,function(x) rnorm(3,x))
+#           [,1]     [,2]     [,3]     [,4]     [,5]
+# [1,] 2.2629543 3.272429 2.071433 6.404653 3.852343
+# [2,] 0.6737666 2.414641 2.705280 4.763593 4.710538
+# [3,] 2.3297993 0.460050 2.994233 3.200991 4.700785
+
+## If our function returns a 2 dimensional matrix, sapply will do essentially
+## the same thing, treating each returned matrix as a single long vector:
+
+sapply(1:5,function(x) matrix(x,2,2))
+#      [,1] [,2] [,3] [,4] [,5]
+# [1,]    1    2    3    4    5
+# [2,]    1    2    3    4    5
+# [3,]    1    2    3    4    5
+# [4,]    1    2    3    4    5
+
+## Unless we specify simplify = "array", in which case it will use the
+## individual matrices to build a multi-dimensional array:
+
+sapply(1:5,function(x) matrix(x,2,2), simplify="array")
+# , , 1
+
+#      [,1] [,2]
+# [1,]    1    1
+# [2,]    1    1
+
+# , , 2
+
+#      [,1] [,2]
+# [1,]    2    2
+# [2,]    2    2
+
+# , , 3
+
+#      [,1] [,2]
+# [1,]    3    3
+# [2,]    3    3
+
+# , , 4
+
+#      [,1] [,2]
+# [1,]    4    4
+# [2,]    4    4
+
+# , , 5
+
+#      [,1] [,2]
+# [1,]    5    5
+# [2,]    5    5
+
+## Each of these behaviors is of course contingent on our function returning
+## vectors or matrices of the same length or dimension.
+
+## vapply - When you want to use sapply but perhaps need to squeeze some more
+## speed out of your code.
+
+## For vapply, you basically give R an example of what sort of thing your
+## function will return, which can save some time coercing returned values to
+## fit in a single atomic vector.
+
+x <- list(a = 1, b = 1:3, c = 10:100)
+
+# Note that since the adv here is mainly speed, this
+# example is only for illustration. We're telling R that
+# everything returned by length() should be an integer of 
+# length 1.
+
+vapply(x, FUN = length, FUN.VALUE = 0) 
+a  b  c  
+1  3 91
+
+## mapply - For when you have several data structures (e.g. vectors, lists) and
+## you want to apply a function to the 1st elements of each, and then the 2nd
+## elements of each, etc., coercing the result to a vector/array as in sapply.
+
+## This is multivariate in the sense that your function must accept multiple
+## arguments.
+
+## Sums the 1st elements, the 2nd elements, etc.
+
+mapply(sum, 1:5, 1:5, 1:5) 
+# [1]  3  6  9 12 15
+##To do rep(1,4), rep(2,3), etc.
+mapply(rep, 1:4, 4:1)   
+# [[1]]
+# [1] 1 1 1 1
+
+# [[2]]
+# [1] 2 2 2
+
+# [[3]]
+# [1] 3 3
+
+# [[4]]
+# [1] 4
+
+## rapply - For when you want to apply a function to each element of a nested list structure, recursively.
+
+## To give you some idea of how uncommon rapply is, I forgot about it when first posting this answer! Obviously, I'm sure many people use it, but YMMV. rapply is best illustrated with a user-defined function to apply:
+
+##Append ! to string, otherwise increment
+
+myFun <- function(x){
+    if (is.character(x)){
+    return(paste(x,"!",sep=""))
+    }
+    else{
+    return(x + 1)
+    }
+}
+
+# #A nested list structure
+l <- list(a = list(a1 = "Boo", b1 = 2, c1 = "Eeek"), 
+          b = 3, c = "Yikes", 
+          d = list(a2 = 1, b2 = list(a3 = "Hey", b3 = 5)))
+
+
+##Result is named vector, coerced to character           
+rapply(l,myFun)
+
+#Result is a nested list like l, with values altered
+rapply(l, myFun, how = "replace")
+#   a.a1     a.b1     a.c1        b        c     d.a2  d.b2.a3  d.b2.b3 
+# "Boo!"      "3"  "Eeek!"      "4" "Yikes!"      "2"   "Hey!"      "6" 
+class(rapply(l,myFun))
+# [1] "character"
+is.array(rapply(l,myFun))
+# [1] FALSE
+is.vector(rapply(l,myFun))
+# [1] TRUE
+is.matrix(rapply(l,myFun))
+# [1] FALSE
+rapply(l, myFun, how = "replace")
+# $a
+# $a$a1
+# [1] "Boo!"
+
+# $a$b1
+# [1] 3
+
+# $a$c1
+# [1] "Eeek!"
+
+
+# $b
+# [1] 4
+
+# $c
+# [1] "Yikes!"
+
+# $d
+# $d$a2
+# [1] 2
+
+# $d$b2
+# $d$b2$a3
+# [1] "Hey!"
+
+# $d$b2$b3
+# [1] 6
+
+class(rapply(l, myFun, how = "replace"))
+# [1] "list"
+
+## tapply - For when you want to apply a function to subsets of a vector and the
+## subsets are defined by some other vector, usually a factor.
+
+## The black sheep of the *apply family, of sorts. The help files use of the
+## phrase "ragged array" can be a bit confusing, but it is actually quite
+## simple.
+
+## A vector:
+
+x <- 1:20
+## A factor (of the same length!) defining groups:
+
+y <- factor(rep(letters[1:5], each = 4))
+## Add up the values in x within each subgroup defined by y:
+
+tapply(x, y, sum)  
+#     a  b  c  d  e  
+#    10 26 42 58 74 
+
+## More complex examples can be handled where the subgroups are defined by the
+## unique combinations of a list of several factors. tapply is similar in spirit
+## to the split-apply-combine functions that are common in R (aggregate, by,
+## ave, ddply, etc.) Hence its black sheep status.
+
+# ___For Ragged Arrays___: tapply
+# 
+# Applies a function to array categories of variable lengths (ragged array). Grouping is defined by factor.
+
+# tapply(vector, factor, FUN)
+tapply(as.vector(iris[,i]), factor(iris[,5]), mean)
+# setosa versicolor  virginica 
+#  0.246      1.326      2.026
+
+#creating the data set with two categorical variables
+x1 <- runif(16)
+x1
+##  [1] 0.83189832 0.93558412 0.59623797 0.71544196 0.79925238 0.44859140
+##  [7] 0.03347409 0.62955913 0.97507841 0.71243195 0.58639700 0.43562781
+## [13] 0.23623549 0.97273216 0.72284040 0.25412129
+
+cat1 <- rep(1:4, 4)
+cat1
+## [1] 1 2 3 4 1 2 3 4 1 2 3 4 1 2 3 4
+
+cat2 <- c(rep(1, 8), rep(2, 8))
+cat2
+## [1] 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2
+
+mat2.df <- data.frame(x1)
+names(mat2.df) <- c("x1")
+mat2.df$cat1 <- cat1
+mat2.df$cat2 <- cat2
+mat2.df
+##           x1 cat1 cat2 
+##  1 0.9574315    1    1
+##  2 0.1163076    2    1
+##  3 0.6661923    3    1
+##  4 0.8265729    4    1
+##  5 0.6701039    1    1
+##  6 0.1478860    2    1
+##  7 0.8537499    3    1
+##  8 0.9993158    4    1
+##  9 0.4189768    1    2
+## 10 0.8830733    2    2
+## 11 0.6114867    3    2
+## 12 0.3111015    4    2
+## 13 0.8834808    1    2
+## 14 0.3606836    2    2
+## 15 0.7056246    3    2
+## 16 0.8052925    4    2
+
+tapply(mat2.df$x1, mat2.df$cat1, mean)
+##         1         2         3         4 
+## 0.7324982 0.3769876 0.7092634 0.7355707
+
+tapply(mat2.df$x1, list(mat2.df$cat1, mat2.df$cat2), mean)
+##           1         2 
+## 1 0.8137677 0.6512288
+## 2 0.1320968 0.6218785
+## 3 0.7599711 0.6585556
+## 4 0.9129443 0.5581970
+
+x <- 1:20
+y1 <- factor(rep(letters[1:5], each = 4))
+y2 <- factor(rep(letters[1:5], 4))
+y1
+#  [1] a a a a b b b b c c c c d d d d e e e e
+# Levels: a b c d e
+y2
+#  [1] a b c d e a b c d e a b c d e a b c d e
+# Levels: a b c d e
+tapply(x, list(y1, y2), sum)
+#    a  b  c  d  e
+# a  1  2  3  4 NA
+# b  6  7  8 NA  5
+# c 11 12 NA  9 10
+# d 16 NA 13 14 15
+# e NA 17 18 19 20
+
+> y3 <- factor(rep(letters[6:10], each = 4))
+> tapply(x, list(y1, y2,y3), sum)
+# , , f
+
+#    a  b  c  d  e
+# a  1  2  3  4 NA
+# b NA NA NA NA NA
+# c NA NA NA NA NA
+# d NA NA NA NA NA
+# e NA NA NA NA NA
+
+# , , g
+
+#    a  b  c  d  e
+# a NA NA NA NA NA
+# b  6  7  8 NA  5
+# c NA NA NA NA NA
+# d NA NA NA NA NA
+# e NA NA NA NA NA
+
+...
+...
+
