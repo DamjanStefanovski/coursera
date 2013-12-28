@@ -667,6 +667,7 @@ table2
 table2[3,1]
 model1.B <- table2[3,1] * (table1[4,4] / table1[2,4])
 model1.B
+# [1] -0.08772068
 
 # Illustration of calculation of standard error of the regression coefficient
 # Standard error = Square root [ (Sums of Squares.Residual / (N - 2) ) / (Sums of Squares.X) ]
@@ -685,14 +686,27 @@ se.B <- sqrt( (SS.resid / df) / SS.X)
 se.B
 
 # Print 95% confidence interval for the regression coefficient
-confint(model1) 
+confint(model1)
+
+## {{{
+## example computation
+level = 0.95
+a <- (1 - level)/2; a <- c(a, 1 - a)
+a
+# [1] 0.025 0.975
+fac <- qnorm(a)
+fac
+# [1] -1.959964  1.959964
+## }}}
 
 # Illustration of calculation of confidence interval
 # Upper value = B + (tcrit * se.B) and Lower value = B - (tcrit * se.B)
 tcrit <- qt(c(.025, .975), df = 198)
 tcrit
+# [1] -1.972017  1.972017
 interval <- -0.08772 + (tcrit*se.B)
 interval
+[1] -0.22735992  0.05191992
 
 # Scatterplot with confidence interval around the regression line
 ggplot(PE, aes(x = age, y = endurance)) + geom_smooth(method = "lm") + 
@@ -1647,6 +1661,36 @@ class(m)
 
 ## names don't count. Neither does class.
 
+seq(1,10, by=2)
+# [1] 1 3 5 7 9
+seq(1,10,length=20)
+#  [1]  1.000000  1.473684  1.947368  2.421053  2.894737  3.368421  3.842105
+#  [8]  4.315789  4.789474  5.263158  5.736842  6.210526  6.684211  7.157895
+# [15]  7.631579  8.105263  8.578947  9.052632  9.526316 10.000000
+
+## ----- for searching functions.
+
+## First, use help.search("neural") or the shorthand ??neural. This will search
+## the help files of installed packages for the word “neural”. Actually, fuzzy
+## matching is used so it returns pages that have words similar to “neural” such
+## as “natural”. For a stricter search, use
+## help.search("neural",agrep=FALSE). The following results were returned for me
+## (using the stricter search).
+
+## If you want to look through packages that you have not necessarily installed,
+## you could try using the findFn function in the sos package. This function
+## searches the help pages of packages covered by the RSiteSearch archives
+## (which includes all packages on CRAN). For example
+
+require("sos")
+findFn("neural")     # returns 206 matches
+findFn("order_by")
+# found 4 matches;  retrieving 1 page
+# 
+# Downloaded 3 links in 2 packages.
+find("find")
+# [1] "package:utils"
+
 ## -----
 
 bar = seq(1,200000, by=2)
@@ -1745,6 +1789,9 @@ seq(along=mydf[1,])
 # [1] 1 2 3 4 5
 seq(along=mydf[1,])
 # [1] 1 2 3 4 5...150
+l1 <- list(a=c(1,2), b=c(3,4), c=c(5,6))
+seq_along(l1)
+# [1] 1 2 3
 
 for(i in seq(along=mydf[,1])) {                     # LOOP3
     myve <- c(myve, mean(as.numeric(mydf[i, 1:3]))) # Note: inject approach is much faster than
@@ -2179,3 +2226,362 @@ tapply(x, list(y1, y2), sum)
 ...
 ...
 
+## -----
+do.call(sum, list(c(1,2,4,1,2), na.rm = TRUE)) # no quotes
+# [1] 10
+do.call("sum", list(c(1,2,4,1,2), na.rm = TRUE)) # quotes
+# [1] 10
+
+## -----
+
+## 1) Here is a reproducible example
+
+set.seed(1)                         # for reproducibility
+v   <- abs( rnorm(1000) )
+thr <- c( 0.5, 1.0, 2.0, 3.0 )
+
+## 2) If you simply want to count the number of points above a threshold
+
+sapply( thr, function(x) sum(v > x) )
+# [1] 620 326  60   3
+
+
+## 3) Or you can cut the data by threshold limits (be careful at the edges
+## if you have discrete data) followed by breaks
+
+c( -Inf, thr, Inf )
+# [1] -Inf  0.5  1.0  2.0  3.0  Inf
+cut( v, breaks=c( -Inf, thr, Inf ) )
+#    [1] (0.5,1]    (-Inf,0.5] (0.5,1]    (1,2]      (-Inf,0.5] (0.5,1]   ...
+
+table( cut( v, breaks=c( -Inf, thr, Inf ) ) )
+
+# (-Inf,0.5]    (0.5,1]      (1,2]      (2,3]    (3,Inf]
+#        380        294        266         57          3
+
+ 
+## 4) If you want to turn the problem on its head and ask for which
+## threshold point would you get 99%, 99.9% and 99.99% of the data below
+## it, you can use use quantiles
+
+quantile( v, c(0.99, 0.999, 0.9999) )
+#      99%    99.9%   99.99%
+# 2.529139 3.056497 3.734899
+
+dat1 <- data.frame(station = rep(letters[1:5], 4), temp = round(rnorm(20, 15, 3)))
+dat2 <- data.frame(station = letters[1:5], temp = round(rnorm(5, 15, 4)))
+
+dat1
+#    station temp
+# 1        a   18
+# 2        b   18
+# 3        c   12
+# 4        d   16
+# 5        e   15
+# 6        a   10
+# 7        b   17
+# 8        c    9
+# 9        d   11
+# 10       e   18
+# 11       a   13
+# 12       b   14
+# 13       c   10
+# 14       d   11
+# 15       e   16
+# 16       a   14
+# 17       b   13
+# 18       c   11
+# 19       d   12
+# 20       e   21
+
+dat2
+#   station temp
+# 1       a   14
+# 2       b   18
+# 3       c   18
+# 4       d   18
+# 5       e   16
+
+dat <- merge(dat1, dat2, by = "station")
+dat
+#    station temp.x temp.y
+# 1        a     18     14
+# 2        a     10     14
+# 3        a     13     14
+# 4        a     14     14
+# 5        b     13     18
+# 6        b     18     18
+# 7        b     17     18
+# 8        b     14     18
+# 9        c     10     18
+# 10       c     11     18
+# 11       c     12     18
+# 12       c      9     18
+# 13       d     11     18
+# 14       d     11     18
+# 15       d     12     18
+# 16       d     16     18
+# 17       e     15     16
+# 18       e     18     16
+# 19       e     16     16
+# 20       e     21     16
+
+tl1 <- split(dat, dat$station)
+class(tl1)
+# [1] "list"
+mode(tl1)
+# [1] "list"
+tl1
+# $a
+#   station temp.x temp.y
+# 1       a     18     14
+# 2       a     10     14
+# 3       a     13     14
+# 4       a     14     14
+
+# $b
+#   station temp.x temp.y
+# 5       b     13     18
+# 6       b     18     18
+# 7       b     17     18
+# 8       b     14     18
+
+# $c
+#    station temp.x temp.y
+# 9        c     10     18
+# 10       c     11     18
+# 11       c     12     18
+# 12       c      9     18
+
+# $d
+#    station temp.x temp.y
+# 13       d     11     18
+# 14       d     11     18
+# 15       d     12     18
+# 16       d     16     18
+
+# $e
+#    station temp.x temp.y
+# 17       e     15     16
+# 18       e     18     16
+# 19       e     16     16
+# 20       e     21     16
+
+lapply(split(dat, dat$station), function(x){
+        out <- x[x$temp.x > x$temp.y, ]
+        if(nrow(out)) out else rep(NA, length(x))
+    })
+# lapply(split(dat, dat$station), function(x){
+# +         out <- x[x$temp.x > x$temp.y, ]
+# +         if(nrow(out)) out else rep(NA, length(x))
+# +     })
+# $a
+#   station temp.x temp.y
+# 1       a     18     14
+
+# $b
+# [1] NA NA NA
+
+# $c
+# [1] NA NA NA
+
+# $d
+# [1] NA NA NA
+
+# $e
+#    station temp.x temp.y
+# 18       e     18     16
+# 20       e     21     16
+
+
+dc1 <- do.call("rbind", lapply(split(dat, dat$station), function(x){
+        out <- x[x$temp.x > x$temp.y, ]
+        if(nrow(out)) out else rep(NA, length(x))
+    }))
+
+## Nice one. But I think you could replace the last line (the one with
+## do.call) with the simpler
+
+w <- which( dat[ ,2] > dat[ ,3] )
+w
+# [1]  6 11 13 14 16 18 20
+
+dat[ w, ]
+#    station temp.x temp.y
+# 6        b     18     16
+# 11       c     17     15
+# 13       d     16     14
+# 14       d     17     14
+# 16       d     17     14
+# 18       e     16     15
+# 20       e     19     15
+
+# OR
+
+#    station temp.x temp.y
+# 1        a     18     14
+# 18       e     18     16
+# 20       e     21     16
+
+## How can I make the output from tapply() into a data.frame
+
+## There are a lot of different ways to transform the output from a 'tapply' call into a data.frame.
+
+## But it's much simpler to avoid that call to 'tapply' in the first place and substitute that with a call to a similar function that returns a data frame instead of a vector:
+
+## 'tapply' returns a vector. 'Aggregate' returns a data frame.
+
+## Just change your function call from 'tapply' to 'aggregate':
+
+data(iris)     # in 'datasets' just call 'data' and pass in 'iris' as an argument
+tx = tapply(iris$Sepal.Length, list(iris$Species), mean)
+# returns: versicolor  virginica 
+#                5.94       6.59 
+
+class(tx)
+# returns: vector
+
+tx = aggregate(iris$Sepal.Length, list(iris$Species), mean)
+# returns:
+#     Group.1    x
+# 1 versicolor 5.94
+# 2  virginica 6.59
+
+class(tx)
+# returns: data.frame
+
+## -----
+
+## Factorial anova example:
+## http://ww2.coastal.edu/kingw/statistics/R-tutorials/factorial.html
+
+data(ToothGrowth)
+str(ToothGrowth)
+# 'data.frame':	60 obs. of  3 variables:
+#  $ len : num  4.2 11.5 7.3 5.8 6.4 10 11.2 11.2 5.2 7 ...
+#  $ supp: Factor w/ 2 levels "OJ","VC": 2 2 2 2 2 2 2 2 2 2 ...
+#  $ dose: num  0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 ...
+names(ToothGrowth)
+# [1] "len"  "supp" "dose"
+names(table(ToothGrowth$dose))
+# [1] "0.5" "1"   "2"  
+as.numeric( names(table(ToothGrowth$dose)))
+# [1] 0.5 1.0 2.0
+ToothGrowth$dose <- factor(ToothGrowth$dose, levels = as.numeric( names(table(ToothGrowth$dose))), names(table(ToothGrowth$dose))) 
+ToothGrowth[seq(1,60,5),]
+#     len supp dose
+# 1   4.2   VC  0.5
+# 6  10.0   VC  0.5
+# 11 16.5   VC    1
+# 16 17.3   VC    1
+# 21 23.6   VC    2
+# 26 32.5   VC    2
+# 31 15.2   OJ  0.5
+# 36 10.0   OJ  0.5
+# 41 19.7   OJ    1
+# 46 25.2   OJ    1
+# 51 25.5   OJ    2
+# 56 30.9   OJ    2
+
+## Now let's check for a balanced design using the replications( ) function... 
+## balanced design implies same/similar number of observations in each cell
+
+replications(len ~ supp * dose, data=ToothGrowth)
+# supp      dose supp:dose 
+#   30        20        10 
+replications(len ~ supp * dose, data=ToothGrowth[1:58,])
+# $supp
+# supp
+# OJ VC 
+# 28 30 
+
+# $dose
+# dose
+#  low  med high 
+#   20   20   18 
+
+# $supp:dose
+#     dose
+# supp low med high
+#   OJ  10  10    8
+#   VC  10  10   10
+
+
+bartlett.test(len ~ supp * dose, data=ToothGrowth)
+# 	Bartlett test of homogeneity of variances
+#
+# data:  len by supp by dose
+# Bartlett's K-squared = 1.4217, df = 1, p-value = 0.2331
+
+bartlett.test(len ~ supp + dose, data=ToothGrowth)
+#
+# 	Bartlett test of homogeneity of variances
+#
+# data:  len by supp by dose
+# Bartlett's K-squared = 1.4217, df = 1, p-value = 0.2331
+
+boxplot(len ~ supp * dose, data=ToothGrowth, ylab="Tooth Length", main="Boxplots of Tooth Growth Data")
+
+with(ToothGrowth, interaction.plot(x.factor=dose, trace.factor=supp,
+                     response=len, fun=mean, type="b", legend=T,
+                     ylab="Tooth Length", main="Interaction Plot",
+                     pch=c(1,19)))
+
+## Numerical summaries of the data can be done with the tapply( ) function... 
+
+with(ToothGrowth, tapply(len, list(supp,dose), mean))
+#      low   med  high
+# OJ 13.23 22.70 26.06
+# VC  7.98 16.77 26.14
+with(ToothGrowth, tapply(len, list(supp,dose), var))
+#       low       med      high
+# OJ 19.889 15.295556  7.049333
+# VC  7.544  6.326778 23.018222
+
+## Another way to get similar information is to use the model.tables( )
+## function, but the ANOVA has to be run first and saved into a model object...
+
+aov.out = aov(len ~ supp * dose, data=ToothGrowth)
+model.tables(aov.out, type="means", se=T)
+# Tables of means
+# Grand mean
+        
+# 18.81333 
+
+#  supp 
+# supp
+#     OJ     VC 
+# 20.663 16.963 
+
+#  dose 
+# dose
+#    low    med   high 
+# 10.605 19.735 26.100 
+
+#  supp:dose 
+#     dose
+# supp low   med   high 
+#   OJ 13.23 22.70 26.06
+#   VC  7.98 16.77 26.14
+
+# Standard errors for differences of means
+#           supp   dose supp:dose
+#         0.9376 1.1484    1.6240
+# replic.     30     20        10
+
+table(ToothGrowth$supp, ToothGrowth$dose)
+# 
+#    low med high
+# OJ  10  10   10
+# VC  10  10   10
+
+summary(aov.out)
+#             Df Sum Sq Mean Sq F value   Pr(>F)    
+# supp         1  205.4   205.4  15.572 0.000231 ***
+# dose         2 2426.4  1213.2  92.000  < 2e-16 ***
+# supp:dose    2  108.3    54.2   4.107 0.021860 *  
+# Residuals   54  712.1    13.2                     
+# ---
+# Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+plot(TukeyHSD(aov.out))
