@@ -61,13 +61,15 @@ m[1,2]
 d=data.frame(subjectID=1:5,gender=c("M","F","F","M","F"),score=c(8,3,6,5,5))
 d
 
-# Number of rows
+# Number of rows, XXX works for matrices just like data.frames
 nrow(d)
 
-# Number of columns
+# Number of columns, XXX works for matrices just like data.frames
 ncol(d)
 
-# Check the attributes
+# Check the attributes XXX $names is column names, $row.names is row names
+# XXX also has $class = "data.frame"
+# XXX matrix only has $dim
 attributes(d)
 
 # Call a particular cell in a dataframe
@@ -77,7 +79,7 @@ d[1,2]
 # Display dataframe
 View(d)
 # Edit dataframe
-edit(d)
+# edit(d)
 
 # Getting help on a function
 ?functionname
@@ -132,7 +134,7 @@ dim(impact)
 nrow(impact)
 ncol(impact)
 
-edit(impact)
+# edit(impact)
 
 # Object types
 class(impact) 
@@ -154,9 +156,9 @@ describe(impact)
 describeBy(impact, impact$condition)
 
 # Subsetting
-edit(impact)
+# edit(impact)
 
-control <- subset(impact, impact[, 2]=="control")
+control <- subset(impact, impact[, 2]=="control") # XXX subset
 control
 
 concussed <- subset(impact, impact[, 2]=="concussed")
@@ -285,7 +287,7 @@ impact <- read.table("Stats1.13.Lab.03.txt", header = T)
 
 # If you want to view the data
 #View(impact)
-#edit(impact)
+# edit(impact)
 
 # Summary statistics
 describe(impact) 
@@ -332,7 +334,10 @@ pairs(~impact$vermem1 + impact$vismem1 + impact$vms1 + impact$rt1 + impact$sym1,
 base <- impact[3:8]
 base.r <- abs(cor(base))
 base.color <- dmat.color(base.r)
-base.order <- order.single(base.r) 
+base.order <- order.single(base.r)
+# XXX to access attributes attr(base.r, "dim")
+attr(base.r, "dim")
+attr(base.r, "dimnames")
 cpairs(base, base.order, panel.colors = base.color, gap = .5,
        main = "Variables Ordered and Colored by Correlation")
 
@@ -430,10 +435,15 @@ PE <- read.table("Stats1.13.Lab.04.txt", header = T)
 
 # If you want to view the data
 #View(PE)
-#edit(PE)
+# edit(PE)
 
 # Summary statistics
 describe(PE) 
+
+# XXX
+# covariance cov(X,Y) = E([X−E(X)]*[Y−E(Y)])
+# correlation cor(X,Y) = cov(X,Y) /(sd(X) * sd(Y))
+# 
 
 # Correlation analysis 
 cor(PE[2:4]) # Omit column 1 because it contains participant id numbers
@@ -481,6 +491,7 @@ hist(PE$e)
 plot(PE$predicted ~ PE$e, main = "Scatterplot", ylab = "Model 3 Predicted Scores", xlab = "Model 3 Residuals")
 abline(lm(PE$predicted ~ PE$e), col="blue")
 
+# XXX
 # Regression analyses, standardized
 # In simple regression, the standardized regression coefficient will be the same as the correlation coefficient
 
@@ -682,8 +693,8 @@ df <- table3[2,1]
 df
 SS.X <- table3[1,2] + table3[2,2]       # XXX2 why???
 SS.X
-se.B <- sqrt( (SS.resid / df) / SS.X) 
-se.B
+se.B <- sqrt( (SS.resid / df) / SS.X)   # XXX
+se.B                                    # XXX used below in interval computation
 
 # Print 95% confidence interval for the regression coefficient
 confint(model1)
@@ -860,7 +871,7 @@ anova(model2, model3)
 # Now let's conduct regression analyses that include a categorical predictor
 # We need to use dummy codes to represent the nominal variable (dept) as numeric 
 # In R there are several ways to do this, the following is just one example, using the function C (for contrasts)
-dept.code <- C(FS$dept, treatment)
+dept.code <- C(FS$dept, treatment)      #XXX treatment is an option??
 
 model4 <- lm(FS$salary ~ FS$years + FS$pubs + (dept.code))
 summary(model4)
@@ -881,9 +892,13 @@ tapply(FS$salary, FS$dept, mean) # XXX2
 # There must be differences across departments in years and/or pubs
 # Let's look at years
 tapply(FS$years, FS$dept, mean)
+##        H        P        S 
+## 22.25000 22.08571 27.51351 
 
 # Let's look at pubs
 tapply(FS$pubs, FS$dept, mean)
+##        H        P        S 
+## 63.32143 59.91429 76.29730 
 
 # The actual salary for Sociology is not that different from the other departments BUT they have more years on the job and more publications, on average, than the other departments, so their PREDICTED salary, based on an AVERAGE number of years and publications is lower, which is a more accuracte refelction of the discrepancies across departments.
 
@@ -1081,8 +1096,6 @@ wm.t.out
 # SE is biased by N (goes down with higher N), SD is not biased by N
 # XXX
 # XXX
-# XXX
-# XXX
 # Difference between standard error and standard deviation
 
 # When dealing with numerical data sets, many people get confused between the standard deviation of
@@ -1193,7 +1206,7 @@ summary(aov.model)
 aov.table = summary(aov.model)
 
 # Effect size for ANOVA
-# XXX (SSW/(SSW+SSB))
+# XXX (SSB/(SSW+SSB))
 ss = aov.table[[1]]$"Sum Sq"
 eta.sq = ss[1] / (ss[1] + ss[2])
 eta.sq
@@ -1266,6 +1279,7 @@ TukeyHSD(aov.AB2)
 
 
 # =*=*=*=*
+# ./Stats1.13.Lab.10.R
 # Statistics One, 2013, Lab 10
 
 # Lab goals
@@ -1358,6 +1372,7 @@ par(mfrow=c(1,1))
 title("Non-significant predictors")
 
 # =*=*=*=*
+# ./Stats1.13.Lab.11.R
 # Statistics One, 2013, Lab 11
 
 # Lab goals
@@ -1396,7 +1411,7 @@ wm = read.table("Stats1.13.Lab.08.txt", header = T)
 
 # If you want to view the data
 # View(wm)
-edit(wm)
+# edit(wm)
 
 # Summary statistics by all groups (control, 8 sessions, 12 sessions, 17 sessions, 19 sessions)
 describeBy(wm, wm$cond)
@@ -1530,6 +1545,11 @@ dput(L)
 DF <- data.frame(1:3, 4:6)
 dput(DF)
 #structure(list(X1.3 = 1:3, X4.6 = 4:6), .Names = c("X1.3", "X4.6"), row.names = c(NA, -3L), class = "data.frame")
+DF
+##   X1.3 X4.6
+## 1    1    4
+## 2    2    5
+## 3    3    6
 
 
 ## Factor are character data, but coded as numeric mode. Each number is 
@@ -1781,9 +1801,9 @@ repeat {                                # LOOP2
 
 mydf <- iris
 myve <- NULL # Creates empty storage container
-> nrow(mydf)
+nrow(mydf)
 # [1] 150
-> ncol(mydf)
+ncol(mydf)
 # [1] 5
 seq(along=mydf[1,])
 # [1] 1 2 3 4 5
@@ -1806,6 +1826,17 @@ myve
 apply(iris[,1:3], 1, mean)
 # [1] 3.333333 3.100000 3.066667 3.066667 3.333333 3.666667 3.133333 3.300000
 
+as.vector(mydf[1,1:3])
+##   Sepal.Length Sepal.Width Petal.Length
+## 1          5.1         3.5          1.4
+
+class(as.vector(mydf[1,1:3]))
+## [1] "data.frame"
+class(as.vector(as.matrix(mydf[1,1:3])))
+## [1] "numeric"
+mean(as.vector(as.matrix(mydf[1,1:3])))
+## [1] 3.333333
+
 ## With custom function
 x <- 1:10
 test <- function(x) { # Defines some custom function
@@ -1821,7 +1852,7 @@ apply(as.matrix(x), 1, test) # Returns same result as previous for loop*
 apply(as.matrix(x), 1, function(x) { if (x<5) { x-1 } else { x/x } })
 # [1] 0 1 2 3 1 1 1 1 1 1
 
-apply - When you want to apply a function to the rows or columns of a matrix (and higher-dimensional analogues).
+# apply - When you want to apply a function to the rows or columns of a matrix (and higher-dimensional analogues).
 
 # Two dimensional matrix
 M <- matrix(seq(1,16), 4, 4)
@@ -1855,7 +1886,7 @@ apply(M, c(1,2), sum)       # Result is two-dimensional
 ## -----
 ## matrix with 20 rows
 m1=matrix(runif(100,1,2), 20)
-a[1:5,]
+m1[1:5,]
 colMeans(m1)
 ## [1] 1.609214 1.556576 1.551698 1.486563 1.550683
 
@@ -1867,6 +1898,12 @@ colMeans(m1)
 #   quoted or backquoted.
 
 ## subtract column means from each column centering each column around mean
+set.seed(0)
+a <- matrix(runif(100, 1, 2),20)
+a.df <- data.frame(a)
+a.df[1:5, ]
+
+colMeans(a)
 a1 <- sweep(a, 2, colMeans(a), "-")
 a1[1:5,  ]
 
@@ -1946,7 +1983,7 @@ sapply(1:5,function(x) rnorm(3,x))
 # [2,] 0.6737666 2.414641 2.705280 4.763593 4.710538
 # [3,] 2.3297993 0.460050 2.994233 3.200991 4.700785
 
-## If our function returns a 2 dimensional matrix, sapply will do essentially
+## XXX If our function returns a 2 dimensional matrix, sapply will do essentially
 ## the same thing, treating each returned matrix as a single long vector:
 
 sapply(1:5,function(x) matrix(x,2,2))
@@ -1956,7 +1993,7 @@ sapply(1:5,function(x) matrix(x,2,2))
 # [3,]    1    2    3    4    5
 # [4,]    1    2    3    4    5
 
-## Unless we specify simplify = "array", in which case it will use the
+## XXX Unless we specify simplify = "array", in which case it will use the
 ## individual matrices to build a multi-dimensional array:
 
 sapply(1:5,function(x) matrix(x,2,2), simplify="array")
@@ -2002,7 +2039,7 @@ sapply(1:5,function(x) matrix(x,2,2), simplify="array")
 
 x <- list(a = 1, b = 1:3, c = 10:100)
 
-# Note that since the adv here is mainly speed, this
+# Note that since the advantage here is mainly speed, this
 # example is only for illustration. We're telling R that
 # everything returned by length() should be an integer of 
 # length 1.
@@ -2203,8 +2240,8 @@ tapply(x, list(y1, y2), sum)
 # d 16 NA 13 14 15
 # e NA 17 18 19 20
 
-> y3 <- factor(rep(letters[6:10], each = 4))
-> tapply(x, list(y1, y2,y3), sum)
+y3 <- factor(rep(letters[6:10], each = 4))
+tapply(x, list(y1, y2,y3), sum)
 # , , f
 
 #    a  b  c  d  e
@@ -2223,7 +2260,7 @@ tapply(x, list(y1, y2), sum)
 # d NA NA NA NA NA
 # e NA NA NA NA NA
 
-...
+# ...
 ...
 
 ## -----
@@ -2435,10 +2472,10 @@ dat[ w, ]
 
 data(iris)     # in 'datasets' just call 'data' and pass in 'iris' as an argument
 tx = tapply(iris$Sepal.Length, list(iris$Species), mean)
-# returns: versicolor  virginica 
-#                5.94       6.59 
+## setosa versicolor  virginica 
+##  5.006      5.936      6.588 
 
-class(tx)
+class(tx) # not true, this returns array
 # returns: vector
 
 tx = aggregate(iris$Sepal.Length, list(iris$Species), mean)
@@ -2463,7 +2500,7 @@ str(ToothGrowth)
 #  $ dose: num  0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 ...
 names(ToothGrowth)
 # [1] "len"  "supp" "dose"
-names(table(ToothGrowth$dose))
+names(table(ToothGrowth$dose)) # XXX names within a column
 # [1] "0.5" "1"   "2"  
 as.numeric( names(table(ToothGrowth$dose)))
 # [1] 0.5 1.0 2.0
@@ -2506,6 +2543,20 @@ replications(len ~ supp * dose, data=ToothGrowth[1:58,])
 #   OJ  10  10    8
 #   VC  10  10   10
 
+# {{
+
+## In statistics, Bartlett's test (see Snedecor and Cochran, 1989) is used to test if k samples are
+## from populations with equal variances. Equal variances across samples is called homoscedasticity
+## or homogeneity of variances. Some statistical tests, for example the analysis of variance, assume
+## that variances are equal across groups or samples. The Bartlett test can be used to verify that
+## assumption.
+
+## Bartlett's test is sensitive to departures from normality. That is, if the samples come from
+## non-normal distributions, then Bartlett's test may simply be testing for non-normality. Levene's
+## test and the Brown–Forsythe test are alternatives to the Bartlett test that are less sensitive to
+## departures from normality.[1]
+
+# }}
 
 bartlett.test(len ~ supp * dose, data=ToothGrowth)
 # 	Bartlett test of homogeneity of variances
